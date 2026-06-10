@@ -5,3 +5,5 @@ __pycache__/
 .virtual_documents/
 anaconda_projects/
 *.pyc
+
+.claude/
