@@ -1,0 +1,35 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"/Users/rodiontiniakov/Desktop/проект пайтон 4 модуль дсба хсе старворс датасет/.venv/bin/python3\" --version)",
+      "Bash(\"/Users/rodiontiniakov/Desktop/проект пайтон 4 модуль дсба хсе старворс датасет/.venv/bin/python3\" -c \"import pandas, numpy, matplotlib, seaborn; print\\('all libs ok'\\)\")",
+      "Bash(.venv/bin/jupyter nbconvert *)",
+      "Bash(.venv/bin/python3 -)",
+      "Bash(.venv/bin/pip install *)",
+      "Bash(python3 -c ' *)",
+      "Bash(pkill -f \"analysis.ipynb\")",
+      "Bash(code \"/Users/rodiontiniakov/Desktop/проект пайтон 4 модуль дсба хсе старворс датасет/analysis.ipynb\")",
+      "Bash(curl -s -X POST http://localhost:8000/characters -H 'Content-Type: application/json' -d '{\"name\": \"Test Character\", \"species\": \"Human\", \"gender\": \"Male\", \"height\": 1.80, \"weight\": 80.0}')",
+      "Bash(python3 -m json.tool)",
+      "Bash(pkill -f \"uvicorn api:app\")",
+      "Bash(.venv/bin/python -c \"import streamlit, matplotlib, seaborn, scipy; print\\('all imports ok'\\)\")",
+      "Bash(.venv/bin/python -m py_compile streamlit_app.py)",
+      "Bash(git init *)",
+      "Bash(git branch *)",
+      "Bash(git remote *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(.venv/bin/python -c \"import ast; ast.parse\\(open\\('streamlit_app.py'\\).read\\(\\)\\); print\\('OK syntax'\\)\")",
+      "Bash(git push *)",
+      "Bash(git ls-remote *)",
+      "Bash(echo \"REMOTE: $\\(git ls-remote origin -h refs/heads/main 2>&1)",
+      "Bash(git commit -q -m ' *)",
+      "Bash(.venv/bin/python -c \"import telegram; print\\('ptb', telegram.__version__\\)\")",
+      "Bash(.venv/bin/python -c ' *)",
+      "Bash(curl *)",
+      "Bash(BOT_TOKEN=\"8724287081:AAGH1ovUFdVL4K2N6uUQTMlkqoxBjaDE8n4\" .venv/bin/python bot.py)",
+      "Bash(.venv/bin/python -c \"import ast; ast.parse\\(open\\('bot.py'\\).read\\(\\)\\); print\\('bot OK'\\)\")",
+      "Bash(git checkout *)"
+    ]
+  }
+}

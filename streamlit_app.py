@@ -9,7 +9,7 @@ from scipy.stats import pearsonr
 
 st.set_page_config(page_title="Star Wars Universe", layout="wide", page_icon="✦")
 
-# Palette — black ground, the iconic crawl yellow, crawl-intro blue
+# Palette - black ground, the iconic crawl yellow, crawl-intro blue
 YELLOW = "#FFE81F"
 BLUE   = "#4BD5EE"
 RED    = "#ff6b6b"
@@ -85,7 +85,7 @@ h3 {{
 p, li {{ color:var(--ink); line-height:1.75; font-size:1rem; }}
 strong {{ color:var(--yellow) !important; font-weight:700; }}
 
-/* Metrics — flat, no boxes */
+/* Metrics - flat, no boxes */
 [data-testid="metric-container"] {{ background:transparent; border:none; padding:6px 0; }}
 [data-testid="metric-container"] label {{
     color:var(--muted) !important; text-transform:uppercase; letter-spacing:.13em;
@@ -197,10 +197,8 @@ st.markdown(f"""
 # ── 1. Abstract ───────────────────────────────────────────────────────────────
 if section == "1. Abstract":
     st.header("1. Abstract")
-    st.markdown('<div class="crawl-intro">A long time ago in a galaxy far, far away….</div>',
-                unsafe_allow_html=True)
     st.write("""
-This project is an exploratory data analysis of the **Star Wars universe** — a composite dataset
+This project is an exploratory data analysis of the **Star Wars universe** - a composite dataset
 of five interconnected CSV tables describing its characters, starships, planets, species, and
 weapons. Part of the work is simply reconciling those tables into a clean analytical base; the
 rest is looking for structure inside it.
@@ -212,7 +210,7 @@ what held up, what didn't, and where the data quietly lies.
 """)
     st.markdown('<hr>', unsafe_allow_html=True)
     st.markdown(
-        '<p style="color:#9a9a9a;">Tiniakov Rodion &amp; Belousov Zakhar — DSBA, HSE.</p>',
+        '<p style="color:#9a9a9a;">Tiniakov Rodion &amp; Belousov Zakhar - DSBA, HSE.</p>',
         unsafe_allow_html=True)
 
 # ── 2. Dataset Description ────────────────────────────────────────────────────
@@ -227,11 +225,11 @@ elif section == "2. Dataset Description":
         ]
         st.write(f"**{len(results)}** on file.")
         for _, row in results.iterrows():
-            h = f"{row['height']:.2f} m" if pd.notna(row.get("height")) else "—"
-            w = f"{row['weight']:.0f} kg" if pd.notna(row.get("weight")) else "—"
-            sp = row.get("species","—") if pd.notna(row.get("species")) else "—"
-            gn = row.get("gender","—")  if pd.notna(row.get("gender"))  else "—"
-            hw = row.get("homeworld","—") if pd.notna(row.get("homeworld")) else "—"
+            h = f"{row['height']:.2f} m" if pd.notna(row.get("height")) else "-"
+            w = f"{row['weight']:.0f} kg" if pd.notna(row.get("weight")) else "-"
+            sp = row.get("species","-") if pd.notna(row.get("species")) else "-"
+            gn = row.get("gender","-")  if pd.notna(row.get("gender"))  else "-"
+            hw = row.get("homeworld","-") if pd.notna(row.get("homeworld")) else "-"
             st.markdown(f"""
 <div class="sw-card">
     <div class="name">{row['name']}</div>
@@ -241,14 +239,14 @@ elif section == "2. Dataset Description":
         st.markdown('<hr>', unsafe_allow_html=True)
 
     st.write("""
-The dataset covers the Star Wars fictional universe across five tables — **characters**
+The dataset covers the Star Wars fictional universe across five tables - **characters**
 (physical and biographical), **planets** (astronomical and geographical), **starships**
 (technical specs), **species** (biology), and **weapons** (specs). Each is summarised below.
 """)
 
     for name, df in [("characters", characters), ("planets", planets),
                      ("starships", starships), ("species", species), ("weapons", weapons)]:
-        with st.expander(f"{name} — {df.shape[0]} rows, {df.shape[1]} columns"):
+        with st.expander(f"{name} - {df.shape[0]} rows, {df.shape[1]} columns"):
             col1, col2 = st.columns([3, 2])
             with col1:
                 st.write("**Data types**")
@@ -288,7 +286,7 @@ elif section == "3. Descriptive Statistics":
 elif section == "4. Data Cleanup":
     st.header("4. Data Cleanup")
     st.write("""
-Rather than impute, rows missing the key numerical columns were dropped — a blunt choice, but
+Rather than impute, rows missing the key numerical columns were dropped - a blunt choice, but
 honest about what the data does and doesn't hold. The cost was uneven across tables.
 """)
 
@@ -335,7 +333,7 @@ elif section == "5. Plots":
                            color_discrete_sequence=[YELLOW])
         fig.update_traces(marker_line_color=PANEL, marker_line_width=1)
         st.plotly_chart(fig, use_container_width=True)
-    st.write("Height is roughly bell-shaped around 1.80 m. Starship length is heavily right-skewed — most ships under 100 m, with the Executor (19,000 m) as an extreme outlier.")
+    st.write("Height is roughly bell-shaped around 1.80 m. Starship length is heavily right-skewed - most ships under 100 m, with the Executor (19,000 m) as an extreme outlier.")
 
     st.subheader("height against weight")
     fig = px.scatter(characters_clean, x="height", y="weight", hover_name="name",
@@ -448,7 +446,7 @@ elif section == "6. Detailed Overview":
                      template=PLOTLY_TEMPLATE, color_discrete_sequence=[PURPLE])
         fig.update_layout(xaxis_tickangle=45)
         st.plotly_chart(fig, use_container_width=True)
-    st.write("Blasters dominate by count, missiles by price, and the lightsaber — fittingly — stays the most compact of all.")
+    st.write("Blasters dominate by count, missiles by price, and the lightsaber - fittingly - stays the most compact of all.")
 
 # ── 7. Data Transformation ────────────────────────────────────────────────────
 elif section == "7. Data Transformation":
@@ -464,7 +462,7 @@ elif section == "7. Data Transformation":
             st.markdown(f"""
 <div class="sw-card">
     <div class="name">{row['name']}</div>
-    <div class="meta">{row.get('species','—')}</div>
+    <div class="meta">{row.get('species','-')}</div>
     <div class="stat">BMI <strong>{row['bmi']:.1f}</strong> · {row['height']:.2f} m / {row['weight']:.0f} kg</div>
 </div>""", unsafe_allow_html=True)
     with col2:
@@ -473,7 +471,7 @@ elif section == "7. Data Transformation":
             st.markdown(f"""
 <div class="sw-card">
     <div class="name">{row['name']}</div>
-    <div class="meta">{row.get('species','—')}</div>
+    <div class="meta">{row.get('species','-')}</div>
     <div class="stat">BMI <strong>{row['bmi']:.1f}</strong> · {row['height']:.2f} m / {row['weight']:.0f} kg</div>
 </div>""", unsafe_allow_html=True)
 
@@ -482,7 +480,7 @@ elif section == "7. Data Transformation":
 
     st.markdown('<hr>', unsafe_allow_html=True)
     st.subheader("passengers per metre")
-    st.write("passengers ÷ length — a rough measure of how much a hull is built to carry rather than fight.")
+    st.write("passengers ÷ length - a rough measure of how much a hull is built to carry rather than fight.")
     st.dataframe(starships_clean[["name","length","passengers","passengers_per_meter"]].head(10).reset_index(drop=True))
     fig = px.bar(
         starships_clean.dropna(subset=["passengers_per_meter"])
@@ -499,7 +497,7 @@ elif section == "7. Data Transformation":
 elif section == "8. Hypothesis Check":
     st.header("8. Hypothesis Check")
 
-    st.subheader("first claim — bigger ships fly slower")
+    st.subheader("first claim - bigger ships fly slower")
     st.write("If length and MGLT speed are at odds, we should see a negative correlation.")
     h1 = starships_clean[["name","length","MGLT","starship_class"]].dropna()
     fig = px.scatter(h1, x="length", y="MGLT", hover_name="name",
@@ -514,11 +512,11 @@ elif section == "8. Hypothesis Check":
     col1.metric("Pearson r", f"{corr:.3f}")
     col2.metric("p-value",   f"{pval:.4f}")
     col3.metric("n", len(h1))
-    st.write(f"r = {corr:.3f} at p = {pval:.3f} — real, but moderate. **Partially confirmed**: length pulls speed down without deciding it.")
+    st.write(f"r = {corr:.3f} at p = {pval:.3f} - real, but moderate. **Partially confirmed**: length pulls speed down without deciding it.")
 
     st.markdown('<hr>', unsafe_allow_html=True)
 
-    st.subheader("second claim — humans are the uniform ones")
+    st.subheader("second claim - humans are the uniform ones")
     st.write("If humans vary less in build, their BMI should spread far less than everyone else's.")
     humans     = characters_clean[characters_clean["species"]=="Human"]["bmi"].dropna()
     non_humans = characters_clean[characters_clean["species"]!="Human"]["bmi"].dropna()
@@ -527,7 +525,7 @@ elif section == "8. Hypothesis Check":
         non_humans.rename("bmi").to_frame().assign(group="Non-Human")
     ])
     fig = px.box(bmi_df, x="group", y="bmi", color="group",
-                 title="BMI — humans against everyone else",
+                 title="BMI - humans against everyone else",
                  labels={"bmi":"BMI","group":"Group"},
                  template=PLOTLY_TEMPLATE, points="all",
                  color_discrete_map={"Human":BLUE,"Non-Human":RED})
@@ -541,7 +539,7 @@ elif section == "8. Hypothesis Check":
         "max":    [round(humans.max(),2),  round(non_humans.max(),2)],
     }).set_index("group")
     st.dataframe(stats)
-    st.write("Human BMI scatters by ~2.9; the rest of the galaxy by ~13.9 — nearly five times as wide. **Confirmed.**")
+    st.write("Human BMI scatters by ~2.9; the rest of the galaxy by ~13.9 - nearly five times as wide. **Confirmed.**")
 
 # ── 9. Discussion ─────────────────────────────────────────────────────────────
 elif section == "9. Discussion":
@@ -551,13 +549,13 @@ elif section == "9. Discussion":
         ("the data, and what it cost",
          "Five interconnected tables, cleaned by deletion rather than guesswork. The price was uneven: characters shed roughly a third of their rows once missing height and weight were dropped, and planets fell from 26 to 11. What remains is trustworthy, but smaller than it looks."),
         ("centre and spread",
-         "Character heights sit tightly around 1.80 m (std 0.38). Starship length is the opposite — a median of 20.75 m against a mean of 604, the gap entirely the work of a few giants. Crew follows suit (median 1, mean 7,344). Only MGLT speed behaves, spanning a tame 20–120."),
+         "Character heights sit tightly around 1.80 m (std 0.38). Starship length is the opposite - a median of 20.75 m against a mean of 604, the gap entirely the work of a few giants. Crew follows suit (median 1, mean 7,344). Only MGLT speed behaves, spanning a tame 20-120."),
         ("what the pictures showed",
          "Height is near-normal; height and weight rise together with loud exceptions. Wookiees are tallest and heaviest, male characters taller on average and more variable, and larger ships reliably need larger crews. Planet population, alone, refuses any tidy scale."),
         ("two engineered numbers",
-         "BMI lands in a believable 16–34 for humanoids and goes haywire for the likes of Jabba and Yoda — which is the point: it flags the bodies that break the mould. Passengers-per-metre cleanly separates warships (zero) from transports (one to two per metre)."),
+         "BMI lands in a believable 16-34 for humanoids and goes haywire for the likes of Jabba and Yoda - which is the point: it flags the bodies that break the mould. Passengers-per-metre cleanly separates warships (zero) from transports (one to two per metre)."),
         ("the verdicts",
-         "Bigger ships do fly slower, but only somewhat — r = −0.384 at p = 0.010, significant yet far from deterministic. Humans really are the uniform ones: their BMI varies almost five times less than the rest of the galaxy's, a spread driven by species built to entirely different blueprints."),
+         "Bigger ships do fly slower, but only somewhat - r = -0.384 at p = 0.010, significant yet far from deterministic. Humans really are the uniform ones: their BMI varies almost five times less than the rest of the galaxy's, a spread driven by species built to entirely different blueprints."),
     ]:
         st.subheader(title)
         st.write(body)

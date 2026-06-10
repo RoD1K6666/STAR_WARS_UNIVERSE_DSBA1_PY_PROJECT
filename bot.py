@@ -1,5 +1,5 @@
 """
-Star Wars dataset — Telegram bot.
+Star Wars dataset - Telegram bot.
 
 A menu-driven companion to the Streamlit project. From the inline menu you can
 pull any part of the analysis: descriptive statistics, plots, a character
@@ -78,10 +78,10 @@ def back_home() -> InlineKeyboardMarkup:
 
 
 INTRO = (
-    "✦ *STAR WARS — DATA STUDY* ✦\n\n"
-    "_A long time ago in a galaxy far, far away…._\n\n"
-    "A companion bot to our Streamlit project. Pick a section below to pull "
-    "any part of the analysis."
+    "*STAR WARS UNIVERSE*\n"
+    "Dataset analytics for the DSBA1 Python project.\n\n"
+    "By Tiniakov Rodion and Belousov Zakhar.\n\n"
+    "Pick a section below to pull any part of the analysis."
 )
 
 
@@ -123,7 +123,7 @@ async def on_button(update: Update, context: ContextTypes.DEFAULT_TYPE):
         context.user_data["mode"] = "add_name"
         context.user_data["new"] = {}
         await q.edit_message_text(
-            "➕ *New character* — step 1 of 4\n\nSend the character's *name*:",
+            "➕ *New character* - step 1 of 4\n\nSend the character's *name*:",
             parse_mode="Markdown", reply_markup=back_home())
 
 
@@ -137,14 +137,14 @@ async def send_plot(q, context, which: str):
         ax.hist(chars["height"], bins=15, color=BLUE, edgecolor=PANEL)
         ax.set_title("Character height distribution")
         ax.set_xlabel("Height (m)"); ax.set_ylabel("Count")
-        caption = "Heights cluster around ~1.80 m — roughly bell-shaped."
+        caption = "Heights cluster around ~1.80 m - roughly bell-shaped."
 
     elif which == "plot_scatter":
         fig, ax = plt.subplots(figsize=(7, 4))
         ax.scatter(chars["height"], chars["weight"], color=YELLOW, s=28, edgecolor=PANEL)
         ax.set_title("Height vs weight")
         ax.set_xlabel("Height (m)"); ax.set_ylabel("Weight (kg)")
-        caption = "Taller characters tend to weigh more — with loud exceptions."
+        caption = "Taller characters tend to weigh more - with loud exceptions."
 
     elif which == "plot_species":
         top = chars["species"].value_counts().head(6).index
@@ -162,7 +162,7 @@ async def send_plot(q, context, which: str):
         ax.set_yscale("log")
         ax.set_title("Starship length vs crew")
         ax.set_xlabel("Length (m)"); ax.set_ylabel("Crew (log)")
-        caption = "Bigger hulls need bigger crews — the Executor is off the chart."
+        caption = "Bigger hulls need bigger crews - the Executor is off the chart."
 
     await q.message.reply_photo(fig_to_bytes(fig), caption=caption)
     await q.message.reply_text("More plots or back to the menu?", reply_markup=plots_menu())
@@ -179,13 +179,13 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif mode == "add_name":
         context.user_data["new"]["name"] = text
         context.user_data["mode"] = "add_species"
-        await update.message.reply_text("Step 2 of 4 — *species*? (or send `-` to skip)",
+        await update.message.reply_text("Step 2 of 4 - *species*? (or send `-` to skip)",
                                         parse_mode="Markdown")
 
     elif mode == "add_species":
         context.user_data["new"]["species"] = None if text == "-" else text
         context.user_data["mode"] = "add_height"
-        await update.message.reply_text("Step 3 of 4 — *height in metres*? _e.g. 1.83_",
+        await update.message.reply_text("Step 3 of 4 - *height in metres*? _e.g. 1.83_",
                                         parse_mode="Markdown")
 
     elif mode == "add_height":
@@ -195,7 +195,7 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
         context.user_data["new"]["height"] = val
         context.user_data["mode"] = "add_weight"
-        await update.message.reply_text("Step 4 of 4 — *weight in kg*? _e.g. 77_",
+        await update.message.reply_text("Step 4 of 4 - *weight in kg*? _e.g. 77_",
                                         parse_mode="Markdown")
 
     elif mode == "add_weight":
@@ -207,7 +207,7 @@ async def on_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await save_character(update, context)
 
     else:
-        await update.message.reply_text("Use the menu — send /start.", reply_markup=main_menu())
+        await update.message.reply_text("Use the menu - send /start.", reply_markup=main_menu())
 
 
 async def do_search(update: Update, text: str):
@@ -220,10 +220,10 @@ async def do_search(update: Update, text: str):
         return
     lines = [f"*{len(res)} found:*\n"]
     for _, r in res.head(10).iterrows():
-        h = f"{r['height']:.2f} m" if pd.notna(r.get("height")) else "—"
-        w = f"{r['weight']:.0f} kg" if pd.notna(r.get("weight")) else "—"
-        sp = r.get("species") if pd.notna(r.get("species")) else "—"
-        lines.append(f"⚔️ *{r['name']}* — {sp}\n    {h}, {w}")
+        h = f"{r['height']:.2f} m" if pd.notna(r.get("height")) else "-"
+        w = f"{r['weight']:.0f} kg" if pd.notna(r.get("weight")) else "-"
+        sp = r.get("species") if pd.notna(r.get("species")) else "-"
+        lines.append(f"⚔️ *{r['name']}* - {sp}\n    {h}, {w}")
     if len(res) > 10:
         lines.append(f"\n…and {len(res) - 10} more.")
     await update.message.reply_text("\n".join(lines), parse_mode="Markdown", reply_markup=back_home())
@@ -241,7 +241,7 @@ async def save_character(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         f"✅ *Added to the dataset!*\n\n"
         f"⚔️ *{row['name']}* (id {new_id})\n"
-        f"Species: {row['species'] or '—'}\n"
+        f"Species: {row['species'] or '-'}\n"
         f"{row['height']:.2f} m, {row['weight']:.0f} kg",
         parse_mode="Markdown", reply_markup=main_menu())
 
@@ -254,22 +254,22 @@ def stats_text() -> str:
     return (
         "📊 *Descriptive statistics*\n\n"
         "*Characters*\n"
-        f"  height — mean {h.mean():.2f} m, median {h.median():.2f}, std {h.std():.2f}\n"
-        f"  weight — mean {w.mean():.0f} kg, median {w.median():.0f}, std {w.std():.0f}\n\n"
+        f"  height - mean {h.mean():.2f} m, median {h.median():.2f}, std {h.std():.2f}\n"
+        f"  weight - mean {w.mean():.0f} kg, median {w.median():.0f}, std {w.std():.0f}\n\n"
         "*Starships*\n"
-        f"  length — median {ln.median():.0f} m, mean {ln.mean():.0f} m (heavily skewed)\n\n"
+        f"  length - median {ln.median():.0f} m, mean {ln.mean():.0f} m\n\n"
         f"Tables on file: characters {len(c)}, starships {len(s)}, planets {len(p)}."
     )
 
 
 def about_text() -> str:
     return (
-        "ℹ️ *Star Wars — a data study*\n\n"
-        "Exploratory analysis of the Star Wars universe across five tables "
+        "ℹ️ *Project description*\n\n"
+        "Analytics across Star Wars universe data set across five main tables "
         "(characters, starships, planets, species, weapons).\n\n"
-        "By *Tiniakov Rodion* & *Belousov Zakhar* — DSBA, HSE.\n\n"
-        "Full notebook & interactive site are built in Streamlit; this bot mirrors "
-        "the key pieces."
+        "By *Tiniakov Rodion* & *Belousov Zakhar* (group 256-1)\n\n"
+        "Full notebook & interactive site are built in Streamlit.\n"
+        "This bot mirrors the key pieces."
     )
 
 
