@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: starwars-telegram-bot
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-bot.txt
+    startCommand: python bot.py
+    envVars:
+      - key: BOT_TOKEN
+        sync: false

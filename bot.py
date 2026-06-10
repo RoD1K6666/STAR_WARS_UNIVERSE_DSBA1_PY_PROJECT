@@ -289,8 +289,23 @@ def main():
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(on_button))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, on_text))
-    print("Bot is running. Press Ctrl+C to stop.")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+
+    external_url = os.environ.get("RENDER_EXTERNAL_URL")
+    port = int(os.environ.get("PORT", "0"))
+    if external_url and port:
+        # Hosted (e.g. Render): run as a web service via webhook
+        print(f"Bot running via webhook at {external_url}")
+        app.run_webhook(
+            listen="0.0.0.0",
+            port=port,
+            url_path=token,
+            webhook_url=f"{external_url}/{token}",
+            allowed_updates=Update.ALL_TYPES,
+        )
+    else:
+        # Local: long polling
+        print("Bot is running (polling). Press Ctrl+C to stop.")
+        app.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
 if __name__ == "__main__":
