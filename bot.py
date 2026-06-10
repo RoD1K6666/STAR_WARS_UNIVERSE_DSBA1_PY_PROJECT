@@ -11,6 +11,7 @@ Run:
     python bot.py
 """
 
+import asyncio
 import io
 import os
 
@@ -285,6 +286,14 @@ def main():
     token = os.environ.get("BOT_TOKEN")
     if not token:
         raise SystemExit("Set the BOT_TOKEN environment variable (token from @BotFather).")
+
+    # Python 3.12+ no longer auto-creates an event loop in the main thread;
+    # PTB's run_webhook/run_polling helpers expect one to exist.
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
+
     app = Application.builder().token(token).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(on_button))
