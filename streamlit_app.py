@@ -7,227 +7,151 @@ import seaborn as sns
 import streamlit as st
 from scipy.stats import pearsonr
 
-st.set_page_config(page_title="Star Wars Universe", layout="wide", page_icon="⭐")
+st.set_page_config(page_title="Star Wars Universe", layout="wide", page_icon="✦")
 
-# ── Plotly dark template ──────────────────────────────────────────────────────
+# ── Plotly template ───────────────────────────────────────────────────────────
 PLOTLY_TEMPLATE = dict(
     layout=go.Layout(
-        paper_bgcolor="#0d0d20",
-        plot_bgcolor="#0d0d20",
-        font=dict(color="#e0e0f0", family="Exo 2, sans-serif"),
-        xaxis=dict(gridcolor="#1e1e3a", linecolor="#333355"),
-        yaxis=dict(gridcolor="#1e1e3a", linecolor="#333355"),
-        colorway=["#FFE81F", "#4fc3f7", "#ef5350", "#ab47bc", "#66bb6a", "#ffa726"],
+        paper_bgcolor="#131318",
+        plot_bgcolor="#131318",
+        font=dict(color="#c7c7d0", family="Barlow, sans-serif", size=13),
+        title=dict(font=dict(family="Barlow Condensed, sans-serif", size=18, color="#e8e8ec")),
+        xaxis=dict(gridcolor="rgba(255,255,255,0.06)", linecolor="rgba(255,255,255,0.15)", zeroline=False),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.06)", linecolor="rgba(255,255,255,0.15)", zeroline=False),
+        colorway=["#ffe81f", "#5b9bd5", "#d9685f", "#9b7bd4", "#76b376", "#e0a35a"],
+        legend=dict(bgcolor="rgba(0,0,0,0)"),
     )
 )
 
-# ── Matplotlib dark ───────────────────────────────────────────────────────────
+# ── Matplotlib ────────────────────────────────────────────────────────────────
 plt.style.use("dark_background")
 plt.rcParams.update({
-    "figure.facecolor": "#0d0d20", "axes.facecolor": "#0d0d20",
-    "axes.edgecolor": "#333355", "axes.labelcolor": "#e0e0f0",
-    "xtick.color": "#e0e0f0", "ytick.color": "#e0e0f0",
-    "text.color": "#e0e0f0", "grid.color": "#1e1e3a", "grid.alpha": 0.5,
+    "figure.facecolor": "#131318", "axes.facecolor": "#131318",
+    "axes.edgecolor": "#3a3a42", "axes.labelcolor": "#c7c7d0",
+    "xtick.color": "#c7c7d0", "ytick.color": "#c7c7d0",
+    "text.color": "#c7c7d0", "grid.color": "#23232b", "grid.alpha": 0.6,
 })
 
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap');
 
-@keyframes pulseGlow {
-    0%,100% { text-shadow: 0 0 10px #FFE81F88, 0 0 30px #FFE81F44; }
-    50%      { text-shadow: 0 0 25px #FFE81Fff, 0 0 60px #FFE81F99, 0 0 100px #FFE81F44; }
-}
-@keyframes borderGlow {
-    0%,100% { box-shadow: 0 0 8px #FFE81F22, inset 0 0 8px #FFE81F08; }
-    50%      { box-shadow: 0 0 22px #FFE81F55, inset 0 0 16px #FFE81F15; }
-}
-@keyframes fadeInUp {
-    from { opacity:0; transform:translateY(18px); }
-    to   { opacity:1; transform:translateY(0); }
-}
-@keyframes crawl {
-    0%   { transform: perspective(400px) rotateX(20deg) translateY(30%); }
-    100% { transform: perspective(400px) rotateX(20deg) translateY(-200%); }
-}
-@keyframes flicker {
-    0%,100%{opacity:1;} 92%{opacity:1;} 93%{opacity:.7;} 94%{opacity:1;}
-}
-@keyframes countUp {
-    from { opacity:0; transform:scale(.7); }
-    to   { opacity:1; transform:scale(1); }
-}
-@keyframes saberSlide {
-    0%   { width:0; opacity:0; }
-    30%  { opacity:1; }
-    100% { width:100%; opacity:1; }
-}
-@keyframes typewriter {
-    from { width:0; }
-    to   { width:100%; }
+:root {
+    --bg:#0a0a0d; --panel:#131318;
+    --line:rgba(255,255,255,0.08); --line-2:rgba(255,255,255,0.15);
+    --text:#e8e8ec; --muted:#8b8b96; --accent:#ffe81f;
 }
 
-html, body, [class*="css"] { font-family:'Exo 2',sans-serif; }
+html, body, [class*="css"] { font-family:'Barlow', sans-serif; }
 
-.stApp {
-    background:
-        radial-gradient(ellipse at 15% 40%, #0a0a2a 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 20%, #0a180a 0%, transparent 50%),
-        radial-gradient(ellipse at 50% 85%, #1a0808 0%, transparent 50%),
-        #04040f;
-}
-.stApp::after {
-    content:"";
-    position:fixed; inset:0;
-    background: repeating-linear-gradient(0deg,
-        transparent, transparent 2px,
-        rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px);
-    pointer-events:none; z-index:9999;
-}
+.stApp { background:var(--bg); }
+.block-container { max-width:1120px; padding-top:2.2rem; }
 
 /* Sidebar */
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg,#02020a 0%,#07071a 50%,#0a0a1f 100%);
-    border-right:1px solid #FFE81F44;
-    box-shadow:4px 0 20px #FFE81F11;
+[data-testid="stSidebar"] { background:#0d0d11; border-right:1px solid var(--line); }
+[data-testid="stSidebar"] h1,
+[data-testid="stSidebar"] .sw-side-title {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700;
+    text-transform:uppercase; letter-spacing:.14em;
+    color:var(--accent); font-size:1.15rem; margin:0 0 .2rem;
 }
-[data-testid="stSidebar"]::before {
-    content:"✦  STAR WARS  ✦";
-    display:block;
-    font-family:'Orbitron',sans-serif; font-weight:900; font-size:.85rem;
-    color:#FFE81F;
-    animation:pulseGlow 3s ease-in-out infinite;
-    letter-spacing:.2em; text-align:center;
-    padding:28px 16px 12px; border-bottom:1px solid #FFE81F33; margin-bottom:20px;
+[data-testid="stSidebar"] .sw-side-sub {
+    color:var(--muted); font-size:.72rem; letter-spacing:.18em;
+    text-transform:uppercase; margin-bottom:1.2rem;
 }
-[data-testid="stSidebar"] p {
-    font-family:'Orbitron',sans-serif !important;
-    font-size:.65rem !important; color:#FFE81Fbb !important;
-    letter-spacing:.15em; text-transform:uppercase;
-}
-[data-testid="stSidebar"] label {
-    font-family:'Exo 2',sans-serif !important;
-    color:#b0b0cc !important; font-size:.88rem !important; transition:color .2s;
-}
-[data-testid="stSidebar"] label:hover { color:#FFE81F !important; }
+[data-testid="stSidebar"] label { color:#bfbfca !important; font-size:.92rem !important; }
 
 /* Headings */
 h1 {
-    font-family:'Orbitron',sans-serif !important; font-weight:900 !important;
-    color:#FFE81F !important;
-    animation:pulseGlow 4s ease-in-out infinite, flicker 8s infinite;
-    letter-spacing:.1em;
+    font-family:'Barlow Condensed',sans-serif !important; font-weight:700 !important;
+    text-transform:uppercase; letter-spacing:.03em; color:var(--text) !important;
 }
 h2 {
-    font-family:'Orbitron',sans-serif !important; font-weight:700 !important;
-    color:#FFE81F !important; text-shadow:0 0 12px #FFE81F66;
-    padding-bottom:8px; letter-spacing:.06em;
-    animation:fadeInUp .5s ease;
-    position:relative; overflow:hidden;
-}
-h2::after {
-    content:"";
-    position:absolute; bottom:0; left:0; height:2px;
-    background:linear-gradient(90deg,#FFE81F,#4fc3f7,#FFE81F);
-    animation:saberSlide 1s ease forwards;
+    font-family:'Barlow Condensed',sans-serif !important; font-weight:600 !important;
+    text-transform:uppercase; letter-spacing:.05em; color:var(--text) !important;
+    border-bottom:1px solid var(--line); padding-bottom:.4rem; margin-top:1.4rem !important;
 }
 h3 {
-    font-family:'Orbitron',sans-serif !important; font-weight:400 !important;
-    color:#a0c0ff !important; letter-spacing:.05em;
+    font-family:'Barlow Condensed',sans-serif !important; font-weight:600 !important;
+    text-transform:uppercase; letter-spacing:.07em; color:var(--muted) !important;
+    font-size:1.02rem !important; margin-top:1.2rem !important;
 }
 
-/* Metric cards */
+p, li { color:#c7c7d0; line-height:1.7; font-size:.95rem; }
+strong { color:var(--text) !important; font-weight:600; }
+
+/* Metric */
 [data-testid="metric-container"] {
-    background:linear-gradient(135deg,#08081a,#10102a);
-    border:1px solid #FFE81F44; border-radius:12px; padding:18px;
-    animation:borderGlow 3s ease-in-out infinite;
-    transition:transform .2s, box-shadow .2s;
-}
-[data-testid="metric-container"]:hover {
-    transform:translateY(-3px);
-    box-shadow:0 8px 25px #FFE81F33 !important;
+    background:var(--panel); border:1px solid var(--line);
+    border-radius:6px; padding:14px 16px;
 }
 [data-testid="metric-container"] label {
-    font-family:'Orbitron',sans-serif !important; color:#FFE81F !important;
-    font-size:.65rem !important; letter-spacing:.15em; text-transform:uppercase;
+    color:var(--muted) !important; text-transform:uppercase;
+    letter-spacing:.08em; font-size:.68rem !important; font-weight:500 !important;
 }
 [data-testid="metric-container"] [data-testid="stMetricValue"] {
-    color:#fff !important; font-family:'Orbitron',sans-serif !important;
-    font-size:1.9rem !important; text-shadow:0 0 10px #ffffff66;
-    animation:countUp .6s ease;
+    color:var(--text) !important; font-family:'Barlow Condensed',sans-serif !important;
+    font-weight:700; font-size:1.9rem !important;
 }
 
-/* Dataframes */
-[data-testid="stDataFrame"] {
-    border:1px solid #FFE81F22 !important;
-    border-radius:8px; overflow:hidden; box-shadow:0 0 15px #FFE81F0a;
-}
-
-/* Expander */
-[data-testid="stExpander"] {
-    border:1px solid #FFE81F33 !important; border-radius:10px;
-    background:linear-gradient(135deg,#08081a,#0d0d20);
-    transition:border-color .3s;
-}
-[data-testid="stExpander"]:hover { border-color:#FFE81F77 !important; }
+/* Dataframe / expander */
+[data-testid="stDataFrame"] { border:1px solid var(--line) !important; border-radius:6px; }
+[data-testid="stExpander"] { border:1px solid var(--line) !important; border-radius:6px; background:var(--panel); }
 details summary {
-    font-family:'Orbitron',sans-serif !important;
-    color:#FFE81F !important; font-size:.82rem !important; letter-spacing:.06em;
+    font-family:'Barlow Condensed',sans-serif !important; text-transform:uppercase;
+    letter-spacing:.04em; color:var(--text) !important; font-size:.92rem !important;
 }
 
 /* Divider */
-hr {
-    border:none !important; height:2px !important;
-    background:linear-gradient(90deg,transparent,#FFE81F,#4fc3f7,#FFE81F,transparent) !important;
-    margin:2.5em 0 !important; box-shadow:0 0 10px #FFE81F55;
-    animation:saberSlide 1.2s ease;
-}
+hr { border:none !important; border-top:1px solid var(--line) !important; margin:2rem 0 !important; }
 
-/* Text */
-p,li { color:#c8c8e0; line-height:1.8; }
-strong { color:#FFE81F !important; }
-
-/* Character card */
-.char-card {
-    background:linear-gradient(135deg,#08081e,#0f0f28);
-    border:1px solid #FFE81F33; border-radius:10px;
-    padding:16px 18px; margin-bottom:10px;
-    transition:transform .2s, border-color .2s, box-shadow .2s;
-    animation:fadeInUp .4s ease;
-}
-.char-card:hover {
-    transform:translateY(-3px);
-    border-color:#FFE81Faa;
-    box-shadow:0 6px 20px #FFE81F22;
-}
-.char-name {
-    font-family:'Orbitron',sans-serif; font-weight:700;
-    color:#FFE81F; font-size:.95rem; letter-spacing:.05em; margin-bottom:6px;
-}
-.char-meta { color:#8888aa; font-size:.8rem; }
-.char-stat { color:#a0c0ff; font-size:.85rem; margin-top:4px; }
-
-/* Search input */
+/* Text input */
 [data-testid="stTextInput"] input {
-    background:#08081e !important; border:1px solid #FFE81F44 !important;
-    color:#e0e0f0 !important; border-radius:8px !important;
-    font-family:'Exo 2',sans-serif !important;
+    background:var(--panel) !important; border:1px solid var(--line-2) !important;
+    color:var(--text) !important; border-radius:6px !important; font-family:'Barlow',sans-serif !important;
 }
-[data-testid="stTextInput"] input:focus {
-    border-color:#FFE81F !important;
-    box-shadow:0 0 10px #FFE81F33 !important;
+[data-testid="stTextInput"] input:focus { border-color:var(--accent) !important; box-shadow:none !important; }
+
+/* Hero */
+.sw-hero { padding:6px 0 26px; border-bottom:1px solid var(--line); margin-bottom:26px; }
+.sw-hero .kicker { color:var(--muted); text-transform:uppercase; letter-spacing:.24em; font-size:.72rem; margin-bottom:12px; }
+.sw-hero .title {
+    font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:3.6rem;
+    line-height:.95; letter-spacing:.02em; color:var(--accent); margin:0;
+}
+.sw-hero .byline { color:#b9b9c4; font-size:.95rem; margin-top:14px; letter-spacing:.03em; }
+.sw-stats { display:flex; gap:42px; margin-top:26px; flex-wrap:wrap; }
+.sw-stats > div { display:flex; flex-direction:column; }
+.sw-stats .num { font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:2rem; color:var(--text); line-height:1; }
+.sw-stats .lab { color:var(--muted); text-transform:uppercase; letter-spacing:.12em; font-size:.66rem; margin-top:5px; }
+
+/* Card */
+.sw-card {
+    background:var(--panel); border:1px solid var(--line);
+    border-left:2px solid var(--accent); border-radius:4px;
+    padding:12px 16px; margin-bottom:8px;
+}
+.sw-card .name {
+    font-family:'Barlow Condensed',sans-serif; font-weight:600;
+    text-transform:uppercase; letter-spacing:.03em; color:var(--text); font-size:1.02rem;
+}
+.sw-card .meta { color:var(--muted); font-size:.82rem; margin-top:2px; }
+.sw-card .stat { color:#b9b9c4; font-size:.84rem; margin-top:5px; }
+
+/* Abstract */
+.sw-kicker { color:var(--accent); text-transform:uppercase; letter-spacing:.22em; font-size:.74rem; margin-bottom:18px; }
+.sw-lead { font-size:1.12rem; line-height:1.75; color:#dadae2; }
+.sw-authors {
+    font-family:'Barlow Condensed',sans-serif; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--accent); font-size:1.15rem; margin-top:22px;
 }
 
 /* Scrollbar */
-::-webkit-scrollbar { width:5px; }
-::-webkit-scrollbar-track { background:#04040f; }
-::-webkit-scrollbar-thumb {
-    background:linear-gradient(180deg,#FFE81F,#aa9900); border-radius:3px;
-}
-
-/* Plotly charts */
-.js-plotly-plot { border-radius:10px; overflow:hidden; }
+::-webkit-scrollbar { width:9px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#2b2b33; border-radius:5px; }
+::-webkit-scrollbar-thumb:hover { background:#3a3a44; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -251,58 +175,28 @@ characters_clean["bmi"] = characters_clean["weight"] / characters_clean["height"
 starships_clean["passengers_per_meter"] = starships_clean["passengers"] / starships_clean["length"]
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
-st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", [
+st.sidebar.markdown(
+    '<div class="sw-side-title">Star Wars</div>'
+    '<div class="sw-side-sub">Data Analysis</div>',
+    unsafe_allow_html=True)
+section = st.sidebar.radio("Section", [
     "1. Abstract", "2. Dataset Description", "3. Descriptive Statistics",
     "4. Data Cleanup", "5. Plots", "6. Detailed Overview",
     "7. Data Transformation", "8. Hypothesis Check", "9. Discussion",
-])
+], label_visibility="collapsed")
 
-# ── Hero banner with animated counters ───────────────────────────────────────
-st.markdown("""
-<div style="
-    background:linear-gradient(135deg,#04040f 0%,#0a0a25 50%,#04040f 100%);
-    border:1px solid #FFE81F44; border-radius:14px;
-    padding:36px 40px 30px; margin-bottom:28px;
-    box-shadow:0 0 50px #FFE81F11, inset 0 0 80px #0000ff06;
-    text-align:center;
-">
-    <div style="
-        font-family:'Orbitron',sans-serif; font-size:2.5rem; font-weight:900;
-        color:#FFE81F; text-shadow:0 0 30px #FFE81Faa,0 0 60px #FFE81F44;
-        letter-spacing:.12em; margin-bottom:8px;
-        animation:pulseGlow 4s ease-in-out infinite;
-    ">STAR WARS UNIVERSE</div>
-    <div style="
-        font-family:'Orbitron',sans-serif; font-size:.8rem; color:#8888aa;
-        letter-spacing:.25em; text-transform:uppercase; margin-bottom:28px;
-    ">Exploratory Data Analysis &nbsp;·&nbsp; DSBA &nbsp;·&nbsp; HSE</div>
-    <div style="display:flex;justify-content:center;gap:32px;flex-wrap:wrap;">
-        <div style="text-align:center;">
-            <div style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:#FFE81F;
-                 text-shadow:0 0 15px #FFE81F88;animation:countUp .8s ease .1s both;">112</div>
-            <div style="font-size:.72rem;color:#8888aa;letter-spacing:.12em;margin-top:2px;">CHARACTERS</div>
-        </div>
-        <div style="text-align:center;">
-            <div style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:#4fc3f7;
-                 text-shadow:0 0 15px #4fc3f788;animation:countUp .8s ease .2s both;">56</div>
-            <div style="font-size:.72rem;color:#8888aa;letter-spacing:.12em;margin-top:2px;">STARSHIPS</div>
-        </div>
-        <div style="text-align:center;">
-            <div style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:#ef5350;
-                 text-shadow:0 0 15px #ef535088;animation:countUp .8s ease .3s both;">57</div>
-            <div style="font-size:.72rem;color:#8888aa;letter-spacing:.12em;margin-top:2px;">WEAPONS</div>
-        </div>
-        <div style="text-align:center;">
-            <div style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:#66bb6a;
-                 text-shadow:0 0 15px #66bb6a88;animation:countUp .8s ease .4s both;">26</div>
-            <div style="font-size:.72rem;color:#8888aa;letter-spacing:.12em;margin-top:2px;">PLANETS</div>
-        </div>
-        <div style="text-align:center;">
-            <div style="font-family:'Orbitron',sans-serif;font-size:1.8rem;color:#ab47bc;
-                 text-shadow:0 0 15px #ab47bc88;animation:countUp .8s ease .5s both;">39</div>
-            <div style="font-size:.72rem;color:#8888aa;letter-spacing:.12em;margin-top:2px;">SPECIES</div>
-        </div>
+# ── Hero ──────────────────────────────────────────────────────────────────────
+st.markdown(f"""
+<div class="sw-hero">
+    <div class="kicker">Exploratory Data Analysis &nbsp;·&nbsp; DSBA &nbsp;·&nbsp; HSE</div>
+    <div class="title">Star Wars Universe</div>
+    <div class="byline">Tiniakov Rodion &nbsp;·&nbsp; Belousov Zakhar</div>
+    <div class="sw-stats">
+        <div><span class="num">{characters.shape[0]}</span><span class="lab">Characters</span></div>
+        <div><span class="num">{starships.shape[0]}</span><span class="lab">Starships</span></div>
+        <div><span class="num">{weapons.shape[0]}</span><span class="lab">Weapons</span></div>
+        <div><span class="num">{planets.shape[0]}</span><span class="lab">Planets</span></div>
+        <div><span class="num">{species.shape[0]}</span><span class="lab">Species</span></div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -311,81 +205,38 @@ st.markdown("""
 if section == "1. Abstract":
     st.header("1. Abstract")
 
+    st.markdown('<div class="sw-kicker">A long time ago in a galaxy far, far away…</div>',
+                unsafe_allow_html=True)
     st.markdown("""
-<div style="overflow:hidden;height:300px;
-    background:radial-gradient(ellipse at center bottom,#0a0a2a 0%,#000008 70%);
-    border:1px solid #FFE81F33;border-radius:12px;margin-bottom:8px;position:relative;">
-    <div style="position:absolute;width:80%;left:10%;
-        animation:crawl 35s linear 1 forwards;text-align:center;padding-top:20px;">
-        <p style="font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:.35em;color:#FFE81F66;margin-bottom:24px;">
-            A LONG TIME AGO IN A GALAXY FAR, FAR AWAY...
-        </p>
-        <p style="font-size:1.05rem;line-height:2;color:#FFE81Fdd;margin-bottom:16px;">
-            This project presents an exploratory data analysis of the
-            <strong style="color:#FFE81F;">Star Wars universe</strong> dataset,
-            containing information about characters, starships, planets, species, and weapons.
-        </p>
-        <p style="font-size:1rem;line-height:2;color:#FFE81Fcc;margin-bottom:16px;">
-            The goal is to find patterns in physical characteristics of characters,
-            technical parameters of starships, and relationships between variables.
-        </p>
-        <p style="font-size:.95rem;line-height:2;color:#FFE81Faa;margin-bottom:16px;">
-            The dataset is composite — multiple interconnected CSV tables obtained from Kaggle.
-        </p>
-        <p style="font-family:'Orbitron',sans-serif;font-size:1.1rem;color:#FFE81F;
-              text-shadow:0 0 20px #FFE81Faa;letter-spacing:.08em;">
-            Tiniakov Rodion &amp; Belousov Zakhar
-        </p>
-    </div>
-</div>
-<p style="text-align:center;font-size:.72rem;color:#FFE81F44;
-   font-family:'Orbitron',sans-serif;letter-spacing:.12em;margin-bottom:16px;">
-    ↓ &nbsp; scroll below to read
+<p class="sw-lead">
+This project presents an exploratory data analysis of the <strong>Star Wars universe</strong>
+dataset, covering characters, starships, planets, species, and weapons.
 </p>
 """, unsafe_allow_html=True)
+    st.write("""
+The goal is to find patterns in the physical characteristics of characters, the technical
+parameters of starships, and the relationships between variables across tables. The dataset is
+composite — several interconnected CSV tables obtained from Kaggle — so part of the work is
+joining and reconciling them into a clean analytical base.
 
-    st.markdown("""
-<div style="overflow-y:auto;max-height:280px;
-    background:linear-gradient(135deg,#08081a,#0d0d22);
-    border:1px solid #FFE81F33;border-radius:12px;
-    padding:28px 10%;text-align:center;
-    box-shadow:0 0 20px #FFE81F0a;
-    scrollbar-width:thin;scrollbar-color:#FFE81F55 #04040f;">
-    <p style="font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:.35em;color:#FFE81F66;margin-bottom:24px;">
-        A LONG TIME AGO IN A GALAXY FAR, FAR AWAY...
-    </p>
-    <p style="font-size:1.05rem;line-height:2;color:#FFE81Fdd;margin-bottom:16px;">
-        This project presents an exploratory data analysis of the
-        <strong style="color:#FFE81F;">Star Wars universe</strong> dataset,
-        containing information about characters, starships, planets, species, and weapons.
-    </p>
-    <p style="font-size:1rem;line-height:2;color:#FFE81Fcc;margin-bottom:16px;">
-        The goal is to find patterns in physical characteristics of characters,
-        technical parameters of starships, and relationships between variables across tables.
-    </p>
-    <p style="font-size:.95rem;line-height:2;color:#FFE81Faa;margin-bottom:16px;">
-        The dataset is composite — multiple interconnected CSV tables obtained from Kaggle.
-        All stages of the analysis were performed by:
-    </p>
-    <p style="font-family:'Orbitron',sans-serif;font-size:1.15rem;color:#FFE81F;
-          text-shadow:0 0 20px #FFE81Faa;letter-spacing:.08em;margin-top:8px;">
-        Tiniakov Rodion &amp; Belousov Zakhar
-    </p>
-</div>
-""", unsafe_allow_html=True)
+The analysis proceeds through descriptive statistics, data cleanup, visualisation, feature
+engineering, and two formal hypothesis checks, ending with a discussion of the findings and
+their limitations.
+""")
+    st.markdown('<div class="sw-authors">Tiniakov Rodion &nbsp;·&nbsp; Belousov Zakhar</div>',
+                unsafe_allow_html=True)
 
 # ── 2. Dataset Description ────────────────────────────────────────────────────
 elif section == "2. Dataset Description":
     st.header("2. Dataset Description")
 
-    # Search box
-    search = st.text_input("🔍  Search characters by name or species", placeholder="e.g. Luke, Human, Wookiee...")
+    search = st.text_input("Search characters by name or species", placeholder="e.g. Luke, Human, Wookiee…")
     if search:
         results = characters[
             characters["name"].str.contains(search, case=False, na=False) |
             characters["species"].str.contains(search, case=False, na=False)
         ]
-        st.write(f"Found **{len(results)}** results:")
+        st.write(f"Found **{len(results)}** results")
         for _, row in results.iterrows():
             h = f"{row['height']:.2f} m" if pd.notna(row.get("height")) else "—"
             w = f"{row['weight']:.0f} kg" if pd.notna(row.get("weight")) else "—"
@@ -393,33 +244,33 @@ elif section == "2. Dataset Description":
             gn = row.get("gender","—")  if pd.notna(row.get("gender"))  else "—"
             hw = row.get("homeworld","—") if pd.notna(row.get("homeworld")) else "—"
             st.markdown(f"""
-<div class="char-card">
-    <div class="char-name">{row['name']}</div>
-    <div class="char-meta">{sp} &nbsp;·&nbsp; {gn} &nbsp;·&nbsp; {hw}</div>
-    <div class="char-stat">Height: {h} &nbsp;|&nbsp; Weight: {w}</div>
+<div class="sw-card">
+    <div class="name">{row['name']}</div>
+    <div class="meta">{sp} &nbsp;·&nbsp; {gn} &nbsp;·&nbsp; {hw}</div>
+    <div class="stat">Height {h} &nbsp;|&nbsp; Weight {w}</div>
 </div>""", unsafe_allow_html=True)
         st.divider()
 
     st.write("""
     The dataset covers the Star Wars fictional universe and consists of **5 main tables**:
-    - **characters.csv** — 112 rows, physical and biographical data
-    - **planets.csv** — 26 rows, astronomical and geographical data
-    - **starships.csv** — 56 rows, technical specifications
-    - **species.csv** — 39 rows, biological characteristics
-    - **weapons.csv** — 57 rows, specifications
+    - **characters.csv** — physical and biographical data
+    - **planets.csv** — astronomical and geographical data
+    - **starships.csv** — technical specifications
+    - **species.csv** — biological characteristics
+    - **weapons.csv** — specifications
     """)
 
     for name, df in [("characters", characters), ("planets", planets),
                      ("starships", starships), ("species", species), ("weapons", weapons)]:
-        with st.expander(f"TABLE: {name.upper()} — {df.shape[0]} rows × {df.shape[1]} columns"):
+        with st.expander(f"{name.upper()} — {df.shape[0]} rows × {df.shape[1]} columns"):
             col1, col2 = st.columns(2)
             with col1:
-                st.write("**Data types:**")
+                st.write("**Data types**")
                 st.dataframe(df.dtypes.rename("dtype").to_frame())
             with col2:
                 missing = df.isnull().sum()
                 missing = missing[missing > 0]
-                st.write("**Missing values:**")
+                st.write("**Missing values**")
                 if missing.empty:
                     st.success("No missing values")
                 else:
@@ -439,7 +290,7 @@ elif section == "3. Descriptive Statistics":
     dfs = {"characters":characters,"planets":planets,"starships":starships,"species":species}
 
     for table, cols in fields.items():
-        st.subheader(f"Table: {table.upper()}")
+        st.subheader(table.upper())
         rows = []
         for col in cols:
             s = dfs[table][col].dropna()
@@ -475,15 +326,15 @@ elif section == "5. Plots":
         fig = px.histogram(characters_clean, x="height", nbins=15,
                            title="Distribution of Character Height",
                            labels={"height":"Height (m)"}, template=PLOTLY_TEMPLATE,
-                           color_discrete_sequence=["#4fc3f7"])
-        fig.update_traces(marker_line_color="#0d0d20", marker_line_width=1)
+                           color_discrete_sequence=["#5b9bd5"])
+        fig.update_traces(marker_line_color="#131318", marker_line_width=1)
         st.plotly_chart(fig, use_container_width=True)
     with col2:
         fig = px.histogram(starships_clean, x="length", nbins=15,
                            title="Distribution of Starship Length",
                            labels={"length":"Length (m)"}, template=PLOTLY_TEMPLATE,
-                           color_discrete_sequence=["#ef5350"])
-        fig.update_traces(marker_line_color="#0d0d20", marker_line_width=1)
+                           color_discrete_sequence=["#d9685f"])
+        fig.update_traces(marker_line_color="#131318", marker_line_width=1)
         st.plotly_chart(fig, use_container_width=True)
     st.write("Height is roughly bell-shaped (~1.80 m). Starship length is heavily right-skewed — most ships under 100 m, with the Executor (19,000 m) as extreme outlier.")
 
@@ -492,7 +343,7 @@ elif section == "5. Plots":
                      color="species", title="Character Height vs Weight",
                      labels={"height":"Height (m)","weight":"Weight (kg)"},
                      template=PLOTLY_TEMPLATE)
-    fig.update_traces(marker=dict(size=9, line=dict(width=1, color="#0d0d20")))
+    fig.update_traces(marker=dict(size=9, line=dict(width=1, color="#131318")))
     st.plotly_chart(fig, use_container_width=True)
     st.write("Positive correlation between height and weight. Hover over points to see character names.")
 
@@ -504,7 +355,7 @@ elif section == "5. Plots":
                  title="Average Height by Species (Top 6)",
                  labels={"height":"Avg Height (m)","species":"Species"},
                  template=PLOTLY_TEMPLATE, color="height",
-                 color_continuous_scale=["#0d0d20","#4fc3f7","#FFE81F"])
+                 color_continuous_scale=["#23232b","#5b9bd5","#ffe81f"])
     st.plotly_chart(fig, use_container_width=True)
     st.write("Wookiees are the tallest (~2.28 m). Humans cluster near the mean of ~1.78 m.")
 
@@ -517,7 +368,7 @@ elif section == "6. Detailed Overview":
                  title="Height Distribution by Gender",
                  labels={"height":"Height (m)","gender":"Gender"},
                  template=PLOTLY_TEMPLATE,
-                 color_discrete_map={"Male":"#4fc3f7","Female":"#ef5350","unknown":"#ab47bc"})
+                 color_discrete_map={"Male":"#5b9bd5","Female":"#d9685f","unknown":"#9b7bd4"})
     st.plotly_chart(fig, use_container_width=True)
     st.write("Male characters have a higher median height (~1.83 m) vs female (~1.70 m) with greater variability.")
 
@@ -529,7 +380,7 @@ elif section == "6. Detailed Overview":
                  title="Average Weight by Species (Top 5)",
                  labels={"weight":"Avg Weight (kg)","species":"Species"},
                  template=PLOTLY_TEMPLATE, color="weight",
-                 color_continuous_scale=["#0d0d20","#ef5350","#FFE81F"])
+                 color_continuous_scale=["#23232b","#d9685f","#ffe81f"])
     st.plotly_chart(fig, use_container_width=True)
     st.write("Weight mirrors height trends. High overall std (~149 kg) driven by extreme outliers.")
 
@@ -538,7 +389,7 @@ elif section == "6. Detailed Overview":
                      hover_name="name", title="Starship Length vs Crew Size",
                      labels={"length":"Length (m)","crew":"Crew Size"},
                      template=PLOTLY_TEMPLATE)
-    fig.update_traces(marker=dict(size=10, line=dict(width=1, color="#0d0d20")))
+    fig.update_traces(marker=dict(size=10, line=dict(width=1, color="#131318")))
     st.plotly_chart(fig, use_container_width=True)
     st.write("Larger ships require more crew. The Executor (19,000 m, ~279,000 crew) is an extreme outlier.")
 
@@ -548,13 +399,13 @@ elif section == "6. Detailed Overview":
         pdf = planets_clean.sort_values("diameter")
         fig = px.bar(pdf, x=pdf.index.astype(str), y="diameter", hover_name="name",
                      title="Planet Diameter", labels={"diameter":"Diameter (km)"},
-                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#4fc3f7"])
+                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#5b9bd5"])
         st.plotly_chart(fig, use_container_width=True)
     with col2:
         pdf2 = planets_clean.sort_values("population")
         fig = px.bar(pdf2, x=pdf2.index.astype(str), y="population", hover_name="name",
                      title="Planet Population", labels={"population":"Population"},
-                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#ef5350"])
+                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#d9685f"])
         st.plotly_chart(fig, use_container_width=True)
     st.write("Diameters similar (10,000–13,000 km). Population varies enormously — one planet near 1 trillion.")
 
@@ -583,21 +434,21 @@ elif section == "6. Detailed Overview":
     with col1:
         wc = weapons_clean["type"].value_counts().reset_index()
         fig = px.bar(wc, x="type", y="count", title="Weapon Count by Type",
-                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#4fc3f7"])
+                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#5b9bd5"])
         fig.update_layout(xaxis_tickangle=45)
         st.plotly_chart(fig, use_container_width=True)
     with col2:
         wca = (weapons_clean.dropna(subset=["cost_in_credits"])
                .groupby("type")["cost_in_credits"].mean().sort_values().reset_index())
         fig = px.bar(wca, x="type", y="cost_in_credits", title="Avg Cost by Type",
-                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#ef5350"])
+                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#d9685f"])
         fig.update_layout(xaxis_tickangle=45)
         st.plotly_chart(fig, use_container_width=True)
     with col3:
         wla = (weapons_clean.dropna(subset=["length"])
                .groupby("type")["length"].mean().sort_values().reset_index())
         fig = px.bar(wla, x="type", y="length", title="Avg Length by Type",
-                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#ab47bc"])
+                     template=PLOTLY_TEMPLATE, color_discrete_sequence=["#9b7bd4"])
         fig.update_layout(xaxis_tickangle=45)
         st.plotly_chart(fig, use_container_width=True)
     st.write("Blasters are most common. Missile weapons most expensive. Lightsabers notably compact.")
@@ -609,30 +460,29 @@ elif section == "7. Data Transformation":
     st.subheader("BMI for Characters")
     st.write("BMI = weight / height² — allows comparing body composition across species.")
 
-    # Character cards for BMI top/bottom
     col1, col2 = st.columns(2)
     with col1:
-        st.write("**Highest BMI:**")
+        st.write("**Highest BMI**")
         for _, row in characters_clean.nlargest(5,"bmi").iterrows():
             st.markdown(f"""
-<div class="char-card">
-    <div class="char-name">{row['name']}</div>
-    <div class="char-meta">{row.get('species','—')}</div>
-    <div class="char-stat">BMI: <strong style="color:#ef5350;">{row['bmi']:.1f}</strong>
+<div class="sw-card">
+    <div class="name">{row['name']}</div>
+    <div class="meta">{row.get('species','—')}</div>
+    <div class="stat">BMI <strong>{row['bmi']:.1f}</strong>
      &nbsp;|&nbsp; {row['height']:.2f} m &nbsp;/&nbsp; {row['weight']:.0f} kg</div>
 </div>""", unsafe_allow_html=True)
     with col2:
-        st.write("**Lowest BMI:**")
+        st.write("**Lowest BMI**")
         for _, row in characters_clean.nsmallest(5,"bmi").iterrows():
             st.markdown(f"""
-<div class="char-card">
-    <div class="char-name">{row['name']}</div>
-    <div class="char-meta">{row.get('species','—')}</div>
-    <div class="char-stat">BMI: <strong style="color:#66bb6a;">{row['bmi']:.1f}</strong>
+<div class="sw-card">
+    <div class="name">{row['name']}</div>
+    <div class="meta">{row.get('species','—')}</div>
+    <div class="stat">BMI <strong>{row['bmi']:.1f}</strong>
      &nbsp;|&nbsp; {row['height']:.2f} m &nbsp;/&nbsp; {row['weight']:.0f} kg</div>
 </div>""", unsafe_allow_html=True)
 
-    st.write("**Full table (first 10 rows):**")
+    st.write("**Full table (first 10 rows)**")
     st.dataframe(characters_clean[["name","species","height","weight","bmi"]].head(10).reset_index(drop=True))
 
     st.divider()
@@ -645,7 +495,7 @@ elif section == "7. Data Transformation":
         x="name", y="passengers_per_meter",
         title="Top 15 Ships by Passengers per Meter",
         labels={"passengers_per_meter":"Passengers/m","name":"Ship"},
-        template=PLOTLY_TEMPLATE, color_discrete_sequence=["#FFE81F"]
+        template=PLOTLY_TEMPLATE, color_discrete_sequence=["#ffe81f"]
     )
     fig.update_layout(xaxis_tickangle=45)
     st.plotly_chart(fig, use_container_width=True)
@@ -662,7 +512,7 @@ elif section == "8. Hypothesis Check":
                      title="Starship Length vs MGLT Speed",
                      labels={"length":"Length (m)","MGLT":"MGLT"},
                      template=PLOTLY_TEMPLATE)
-    fig.update_traces(marker=dict(size=10, line=dict(width=1, color="#0d0d20")))
+    fig.update_traces(marker=dict(size=10, line=dict(width=1, color="#131318")))
     st.plotly_chart(fig, use_container_width=True)
     corr, pval = pearsonr(h1["length"], h1["MGLT"])
     col1,col2,col3 = st.columns(3)
@@ -685,7 +535,7 @@ elif section == "8. Hypothesis Check":
                  title="BMI Distribution: Humans vs Non-Humans",
                  labels={"bmi":"BMI","group":"Group"},
                  template=PLOTLY_TEMPLATE, points="all",
-                 color_discrete_map={"Human":"#4fc3f7","Non-Human":"#ef5350"})
+                 color_discrete_map={"Human":"#5b9bd5","Non-Human":"#d9685f"})
     st.plotly_chart(fig, use_container_width=True)
     stats = pd.DataFrame({
         "Group":  ["Human","Non-Human"],
